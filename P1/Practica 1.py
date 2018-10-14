@@ -8,6 +8,7 @@ Created on Tue Oct  9 20:19:52 2018
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import math
 
 """
 1.- USANDO LAS FUNCIONES DE OPENCV : 
@@ -285,28 +286,150 @@ Mostrar ejemplos de funcionamiento usando bordes a cero.
 
 
 
+## Vamos a usar Sobel, por ejemplo
 
 
 
-
-
-      
+def sobel(orig, kernelx, kernely):
+    
+    ## AÑADIR BORDES CON CEROS
+    img = []
+    ancho_borde = len(kernelx)//2
+    
+    for row in range(0,len(orig)):
+        
+        row_izq = []
+        for x in range(0,ancho_borde):
+            row_izq.append(0)
+            
+        row_dcho = []
+        for x in range(0,ancho_borde):
+            row_dcho.append(0)
+        
+        concat = np.concatenate((row_izq,orig[row],row_dcho),axis=None)
+        img.append(concat)
+        
+        
+        
+        
+    fila = []
+    for x in range(0,len(img[0])):
+        fila.append(0)
+        
+    ceros = []
+    for x in range(0,ancho_borde):
+        ceros.append(fila)
+        
+    img = ceros + img + ceros
+    
+    
     
 
+    ## CONVOLUCION
+    
+        ### Creamos una matriz vacía de 0 para la x
+    n = len(img)-2*ancho_borde
+    m = len(img[0])-2*ancho_borde
+    convx = [0] * n
+    for i in range(n):
+        convx[i] = [0] * m
+
+    
+        ### HORIZONTALMENTE
+    for row in range(0,len(convx)):
+        for col in range(0,len(convx[0])):
+            value = 0
+            for k in range(0,len(kernelx)):
+                value = value + img[row+ancho_borde][col+k]*kernelx[k]
+                    
+            convx[row][col] = value
+            
+    
+    
+        ### Mostramos el resultado de la convolucion con los x
+        
+    plt.subplot(121),plt.imshow(convx),plt.title('Conv x')
+    plt.xticks([]), plt.yticks([])
+    plt.show()
 
 
-
-
-
-
-orig = [[0,2,4,6,8],[3,2,1,3,2],[4,4,0,2,4]]
-
-
-
-ancho_borde = ksize // 2
+    
+    
+            
+        ### Creamos otra matriz vacía de 0 para la y
+    n = len(img)-2*ancho_borde
+    m = len(img[0])-2*ancho_borde
+    convy = [0] * n
+    for i in range(n):
+        convy[i] = [0] * m    
+    
+    
+        ### VERTICALMENTE
+    for col in range(0,len(convy[0])):
+        for row in range(0,len(convy)):
+            value = 0
+            for k in range(0,len(kernely)):
+                value = value + img[row+k][col+ancho_borde]*kernely[k]
+                    
+            convy[row][col] = value
+            
+            
+            
+        ### Mostramos el resultado de la convolucion con los y
+        
+    plt.subplot(121),plt.imshow(convy),plt.title('Conv y')
+    plt.xticks([]), plt.yticks([])
+    plt.show()
+    
+    
+        ### UNIMOS RESULTADOS
+        
+        ### Creamos otra matriz vacía de 0 para el resultado final
+    n = len(img)-2*ancho_borde
+    m = len(img[0])-2*ancho_borde
+    convfinal = [0] * n
+    for i in range(n):
+        convfinal[i] = [0] * m   
+    
+            
+        ### Unimos la vertical y horizontal
+        
+    for row in convfinal:
+        for col in row:
+            convfinal[row][col] = math.sqrt(convx[row][col]**2+convy[row][col]**2)
     
     
     
+    return convfinal
+
+
+
+
+
+    
+## Probamos
+    
+orig = cv2.imread('imagenes/cat.bmp',0)
+
+sobel3x = [[-1,0,1],[-2,0,2],[-1,0,1]]
+sobel3y = [[-1,-2,-1],[0,0,0],[1,2,1]]
+
+sobel5x = [[-2,-1,0,1,2],[-2,-1,0,1,2],[-4,-2,0,2,4],[-2,-1,0,1,2],[-2,-1,0,1,2]]
+sobel5y = [[-2,-2,-4,-2,-2],[-1,-1,-2,1,1],[0,0,0,0,0],[1,1,2,1,1],[2,2,4,2,2]]
+
+
+img = sobel(orig,sobel3x,sobel3y)
+
+plt.subplot(121),plt.imshow(orig),plt.title('Original')
+plt.xticks([]), plt.yticks([])
+
+plt.subplot(122),plt.imshow(img),plt.title('Resultado')
+plt.xticks([]), plt.yticks([])
+plt.show()
+
+
+
+
 
 
 
