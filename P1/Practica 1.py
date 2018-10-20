@@ -2,7 +2,7 @@
 """
 Created on Tue Oct  9 20:19:52 2018
 
-@author: Julio
+@author: Julio Fresneda - juliofresnedag@correo.ugr.es
 """
 
 import cv2
@@ -20,22 +20,23 @@ A) El cálculo de la convolución de una imagen con una máscara Gaussiana 2D
 Valorar los resultados.
 """
 
-# Imagen
+# Cargamos la imagen
 img = cv2.imread('imagenes/cat.bmp')
 
 
-# Aplicar a la imagen un kernel gaussiano para obtener distintas imágenes
+# Aplicamos a la imagen un kernel Gaussiano para obtener distintas imágenes difuminadas, con distintos tamaños
+# de máscara y valores de sigma.
 difuminada1 = cv2.GaussianBlur(img,(5,5),1)
 difuminada2 = cv2.GaussianBlur(img,(7,7),10)
 difuminada3 = cv2.GaussianBlur(img,(3,3),5)
 
-# OpenCV usa BGR, y matplotlib RGB. Por lo tanto hay que transformar
+# OpenCV usa BGR, y matplotlib RGB. Por lo tanto, para visualizar bien las imágenes hay que transformarlas.
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 difuminada1 = cv2.cvtColor(difuminada1, cv2.COLOR_BGR2RGB)
 difuminada2 = cv2.cvtColor(difuminada2, cv2.COLOR_BGR2RGB)
 difuminada3 = cv2.cvtColor(difuminada3, cv2.COLOR_BGR2RGB)
 
-# Mostrar imágenes
+# Mostramos las imágenes
 plt.subplot(121),plt.imshow(img),plt.title('Original')
 plt.xticks([]), plt.yticks([])
 
@@ -54,40 +55,175 @@ plt.show()
 
 
 
-
 """
 B) Usar getDerivKernels para obtener las máscaras 1D que permiten calcular la convolución 2D
 con máscaras de derivadas. Representar e interpretar dichas máscaras 1D para distintos
 valores de sigma.
 """
 
-# Imagen
-img = cv2.imread('imagenes/cat.bmp')
-# valores 0 1 y 2
+##### KÉRNELS
 
-#### NO SÉ DONDE ESTÁ SIGMA AQUÍ
+
+## Ksize = 1
+
 ## Máscara derivada respecto a 'x' 
-d0x_x, d0x_y = cv2.getDerivKernels(1, 0, 0, True)
+d1x_x, d1x_y = cv2.getDerivKernels(1, 0, 1, True)
 
 ## Matriz:
-d0x_x = d0x_x.transpose()
-d0xm = d0x_x * d0x_y
-
+d1x_x = d1x_x.transpose()
+d1xm = d1x_x * d1x_y
+d1xm
 
 ## Máscara derivada respecto a 'y' 
-d0y_x, d0y_y = cv2.getDerivKernels(0, 1, 0, True)
+d1y_x, d1y_y = cv2.getDerivKernels(0, 1, 1, True)
 
 ## Matriz:
-d0y_x = d0y_x.transpose()
-d0ym = d0y_x * d0y_y
-
+d1y_x = d1y_x.transpose()
+d1ym = d1y_x * d1y_y
+d1ym
 
 ## Máscara derivada respecto a 'x' e 'y'
-d0xy_x, d0xy_y = cv2.getDerivKernels(1, 1, 1, True)
+d1xy_x, d1xy_y = cv2.getDerivKernels(1, 1, 1, True)
 
 ## Matriz:
-d0xy_x = d0xy_x.transpose()
-d0xym = d0xy_x * d0xy_y
+d1xy_x = d1xy_x.transpose()
+d1xym = d1xy_x * d1xy_y
+d1xym
+
+
+## Ksize = 3
+
+## Máscara derivada respecto a 'x' 
+d3x_x, d3x_y = cv2.getDerivKernels(1, 0, 3, True)
+
+## Matriz:
+d3x_x = d3x_x.transpose()
+d3xm = d3x_x * d3x_y
+d3xm
+
+## Máscara derivada respecto a 'y' 
+d3y_x, d3y_y = cv2.getDerivKernels(0, 1, 3, True)
+
+## Matriz:
+d3y_x = d3y_x.transpose()
+d3ym = d3y_x * d3y_y
+d3ym
+
+## Máscara derivada respecto a 'x' e 'y'
+d3xy_x, d3xy_y = cv2.getDerivKernels(1, 1, 3, True)
+
+## Matriz:
+d3xy_x = d3xy_x.transpose()
+d3xym = d3xy_x * d3xy_y
+d3xym
+
+
+
+## Ksize = 5
+
+## Máscara derivada respecto a 'x' 
+d5x_x, d5x_y = cv2.getDerivKernels(1, 0, 5, True)
+
+## Matriz:
+d5x_x = d5x_x.transpose()
+d5xm = d5x_x * d5x_y
+d5xm
+
+## Máscara derivada respecto a 'y' 
+d5y_x, d5y_y = cv2.getDerivKernels(0, 1, 5, True)
+
+## Matriz:
+d5y_x = d5y_x.transpose()
+d5ym = d5y_x * d5y_y
+d5ym
+
+## Máscara derivada respecto a 'x' e 'y'
+d5xy_x, d5xy_y = cv2.getDerivKernels(1, 1, 5, True)
+
+## Matriz:
+d5xy_x = d5xy_x.transpose()
+d5xym = d5xy_x * d5xy_y
+d5xym
+
+
+
+## Representación visual de kernel 3x3 respecto a la x
+kernel3x = []
+for k in range(0,len(d3x_x[0])):
+    kernel3x.append(d3x_x[0][k])
+
+kernel3y = []
+for k in range(0,len(d3x_y)):
+    kernel3y.append(d3x_y[k][0])
+    
+img_bordevertical = [[10,10,10,20,20,20],[10,10,10,20,20,20],[10,10,10,20,20,20],[10,10,10,20,20,20],[10,10,10,20,20,20],[10,10,10,20,20,20]]
+c = convolucionKernelSeparable(img_bordevertical,kernel3x,kernel3y,0)
+
+plt.subplot(121),plt.imshow(img_bordevertical),plt.title('Imagen con borde vertical')
+plt.xticks([]), plt.yticks([])
+
+plt.subplot(122),plt.imshow(c),plt.title('Borde detectado')
+plt.xticks([]), plt.yticks([])
+plt.show()
+
+
+
+
+
+## Representación visual de aplicarle kernels 5x5 a una imagen con borde vertical y horizontal
+imgconbordes = [[10,10,10,10,10,10,10,20,20,20],[10,10,10,10,10,10,10,20,20,20],[10,10,10,10,10,10,10,20,20,20],[10,10,10,10,10,10,10,20,20,20],[10,10,10,10,10,10,10,20,20,20],[10,10,10,10,10,10,10,20,20,20],[30,30,30,30,30,30,30,20,20,20],[30,30,30,30,30,30,30,20,20,20],[30,30,30,30,30,30,30,20,20,20]]
+
+
+# Derivada respecto a la x
+kernel5x = []
+for k in range(0,len(d5x_x[0])):
+    kernel5x.append(d5x_x[0][k])
+
+kernel5y = []
+for k in range(0,len(d5x_y)):
+    kernel5y.append(d5x_y[k][0])
+    
+cx = convolucionKernelSeparable(imgconbordes,kernel5x,kernel5y,0)
+
+# Derivada respecto a la y
+kernel5x = []
+for k in range(0,len(d5y_x[0])):
+    kernel5x.append(d5y_x[0][k])
+
+kernel5y = []
+for k in range(0,len(d5y_y)):
+    kernel5y.append(d5y_y[k][0])
+    
+cy = convolucionKernelSeparable(imgconbordes,kernel5x,kernel5y,0)
+    
+# Derivada respecto a la x y la y
+kernel5x = []
+for k in range(0,len(d5xy_x[0])):
+    kernel5x.append(d5xy_x[0][k])
+
+kernel5y = []
+for k in range(0,len(d5xy_y)):
+    kernel5y.append(d5xy_y[k][0])
+    
+cxy = convolucionKernelSeparable(imgconbordes,kernel5x,kernel5y,0)
+
+
+plt.subplot(121),plt.imshow(imgconbordes),plt.title('Imagen con bordes')
+plt.xticks([]), plt.yticks([])
+
+plt.subplot(122),plt.imshow(cx),plt.title('Kernel de la deriv. a la x')
+plt.xticks([]), plt.yticks([])
+plt.show() 
+
+plt.subplot(121),plt.imshow(cy),plt.title('Kernel de la deriv. a la y')
+plt.xticks([]), plt.yticks([])
+
+    
+plt.subplot(122),plt.imshow(cxy),plt.title('Kernel de la deriv. a la x e y')
+plt.xticks([]), plt.yticks([])
+plt.show()  
+
+
 
 
 
@@ -110,12 +246,12 @@ imgs3 = cv2.GaussianBlur(img,(0,0),3)
 ## Laplacianas
 
 # Sigma = 1
-laps1i = cv2.Laplacian(imgs1,cv2.CV_8U,borderType = cv2.BORDER_ISOLATED,delta=50)
-laps1r = cv2.Laplacian(imgs1,cv2.CV_8U,borderType = cv2.BORDER_REFLECT,delta=50)
+laps1i = cv2.Laplacian(imgs1,cv2.CV_8U,borderType = cv2.BORDER_ISOLATED,delta=100)
+laps1r = cv2.Laplacian(imgs1,cv2.CV_8U,borderType = cv2.BORDER_REFLECT,delta=100)
 
 # Sigma = 3
-laps3i = cv2.Laplacian(imgs3,cv2.CV_8U,borderType = cv2.BORDER_ISOLATED,delta=50)
-laps3r = cv2.Laplacian(imgs3,cv2.CV_8U,borderType = cv2.BORDER_REFLECT,delta=50)
+laps3i = cv2.Laplacian(imgs3,cv2.CV_8U,borderType = cv2.BORDER_ISOLATED,delta=100)
+laps3r = cv2.Laplacian(imgs3,cv2.CV_8U,borderType = cv2.BORDER_REFLECT,delta=100)
 
 
 # Mostrar imágenes
@@ -137,10 +273,6 @@ plt.xticks([]), plt.yticks([])
 plt.subplot(122),plt.imshow(laps3r),plt.title('Sigma=3, border reflect')
 plt.xticks([]), plt.yticks([])
 plt.show()
-
-
-
-
 
 
 
@@ -321,10 +453,8 @@ def convolucionKernelSeparable( orig, kernelx, kernely, tipo_borde ):
 
 ### MOSTRAR IMAGEN
     
-
 # Imagen
-orig = cv2.imread('imagenes/cat.bmp',0)
-
+orig = cv2.imread('imagenes/marilyn.bmp',0)
 
 
 # Kernel con tamaño de máscara 3 y sigma 1
@@ -393,14 +523,13 @@ plt.show()
 
 
 
-
 """
 B. El cálculo de la convolución 2D con una máscara 2D de 1ª derivada de tamaño variable. 
 Mostrar ejemplos de funcionamiento usando bordes a cero.
 """
 
 
-## Obtenemos los coeficientes para la derivada
+## Obtenemos los coeficientes del kernel
 kernel_array3 = cv2.getDerivKernels(1,1,3)
 
 kernelx3 = []
@@ -445,7 +574,6 @@ plt.xticks([]), plt.yticks([])
 plt.subplot(122),plt.imshow(imgconvk7,cmap='gray'),plt.title('Convolucionada k=7')
 plt.xticks([]), plt.yticks([])
 plt.show()
-
 
 
 
@@ -502,6 +630,8 @@ plt.xticks([]), plt.yticks([])
 plt.subplot(122),plt.imshow(imgconvk7,cmap='gray'),plt.title('Convolucionada k=7')
 plt.xticks([]), plt.yticks([])
 plt.show()
+
+
 
 
 """
@@ -571,11 +701,13 @@ gp = gaussianPyramid(orig,4,3)
 
 
 print("Bordes wrap:")
-imShowRealScale(gp[0],1,'Original, nivel 0')
+imShowRealScale(gp[0],1,'Original')
 imShowRealScale(gp[1],1,'Gaussian nivel 1')
 imShowRealScale(gp[2],1,'Gaussian nivel 2')
 imShowRealScale(gp[3],1,'Gaussian nivel 3')
 imShowRealScale(gp[4],1,'Gaussian nivel 4')
+
+
 
 
 """
@@ -606,6 +738,11 @@ orig = cv2.imread('imagenes/einstein.bmp',0)
 gp = gaussianPyramid(orig,4)
 lp = laplacianPyramid(4,gp)
 
+imShowRealScale(gp[0],1,'Gaussian nivel 0')
+imShowRealScale(gp[1],1,'Gaussian nivel 1')
+imShowRealScale(gp[2],1,'Gaussian nivel 2')
+imShowRealScale(gp[3],1,'Gaussian nivel 3')
+
 imShowRealScale(lp[0],1,'Laplacian nivel 0')
 imShowRealScale(lp[1],1,'Laplacian nivel 1')
 imShowRealScale(lp[2],1,'Laplacian nivel 2')
@@ -613,23 +750,6 @@ imShowRealScale(lp[3],1,'Laplacian nivel 3')
 
 
 
-
-## Reconstruimos la imagen original a partir dela pirámide
-
-def rebuild(last_gp, lp):
-    up = last_gp
-    for i in range(len(lp),0,-1):
-        size = (lp[i-1].shape[1], lp[i-1].shape[0])
-        up = cv2.pyrUp(up,dstsize=size)
-        up = cv2.add(lp[i-1],up)
-        imShowRealScale(up,1)
-
-
-
-
-rebuild(gp[len(gp)-1],lp)
-        
-        
 
 
 """
@@ -654,15 +774,19 @@ El valor de sigma más adecuado para cada pareja habrá que encontrarlo por expe
 
 ## Función que obtiene la imagen híbrida
 def hibridas(img_baja, sigma_baja, img_alta, sigma_alta,g=0):
-    img_cerca = cv2.GaussianBlur(img_baja,(0,0),sigma_baja)
-    img_lejos = cv2.subtract(img_alta,cv2.GaussianBlur(img_alta,(0,0),sigma_alta))
+   
+    img_lejos = cv2.GaussianBlur(img_baja,(0,0),sigma_baja)
+    gau = cv2.GaussianBlur(img_alta,(5,5),sigma_alta)
+  
+    img_cerca = cv2.subtract(img_alta,gau)
     
-    hibrida = cv2.add(img_cerca,img_lejos)
-    
-    imShowRealScale(img_cerca,gray=g)
-    imShowRealScale(img_lejos,gray=g)
-    imShowRealScale(hibrida,gray=g)
-    imShowRealScale(hibrida,scale=0.25,gray=g)
+    hibrida = cv2.add(img_lejos,img_cerca)
+    tit = 'Frecuencias bajas, sigma = ' + str(sigma_baja)
+    imShowRealScale(img_lejos,gray=g,title=tit )
+    tit = 'Frecuencias altas, sigma = ' + str(sigma_alta)
+    imShowRealScale(img_cerca,gray=g,title=tit)
+    imShowRealScale(hibrida,gray=g,title='Híbrida')
+    imShowRealScale(hibrida,scale=0.25,gray=g,title='Híbrida')
     
     return hibrida
     
@@ -694,11 +818,6 @@ bicimoto = hibridas(lejos,5,cerca,1,1)
 
 
 
-
-
-
-
-
 """
 BONUS
 """
@@ -718,27 +837,27 @@ Usar implementaciones propias de todas las funciones usadas (0.5 puntos)
 
 gp = gaussianPyramid(avpaj,5,2)
 
-imShowRealScale(gp[0],1,'Original')
-imShowRealScale(gp[1],1,'Gaussian nivel 1')
-imShowRealScale(gp[2],1,'Gaussian nivel 2')
-imShowRealScale(gp[3],1,'Gaussian nivel 3')
-imShowRealScale(gp[4],1,'Gaussian nivel 4')
+imShowRealScale(gp[0],1,'Original, nivel 1')
+imShowRealScale(gp[1],1,'Gaussian nivel 2')
+imShowRealScale(gp[2],1,'Gaussian nivel 3')
+imShowRealScale(gp[3],1,'Gaussian nivel 4')
+imShowRealScale(gp[4],1,'Gaussian nivel 5')
 
 gp = gaussianPyramid(pezsub,5,2)
 
-imShowRealScale(gp[0],1,'Original')
-imShowRealScale(gp[1],1,'Gaussian nivel 1')
-imShowRealScale(gp[2],1,'Gaussian nivel 2')
-imShowRealScale(gp[3],1,'Gaussian nivel 3')
-imShowRealScale(gp[4],1,'Gaussian nivel 4')
+imShowRealScale(gp[0],1,'Original, nivel 1')
+imShowRealScale(gp[1],1,'Gaussian nivel 2')
+imShowRealScale(gp[2],1,'Gaussian nivel 3')
+imShowRealScale(gp[3],1,'Gaussian nivel 4')
+imShowRealScale(gp[4],1,'Gaussian nivel 5')
 
 gp = gaussianPyramid(bicimoto,5,2)
 
-imShowRealScale(gp[0],1,'Original')
-imShowRealScale(gp[1],1,'Gaussian nivel 1')
-imShowRealScale(gp[2],1,'Gaussian nivel 2')
-imShowRealScale(gp[3],1,'Gaussian nivel 3')
-imShowRealScale(gp[4],1,'Gaussian nivel 4')
+imShowRealScale(gp[0],1,'Original, nivel 1')
+imShowRealScale(gp[1],1,'Gaussian nivel 2')
+imShowRealScale(gp[2],1,'Gaussian nivel 3')
+imShowRealScale(gp[3],1,'Gaussian nivel 4')
+imShowRealScale(gp[4],1,'Gaussian nivel 5')
 
 
 
