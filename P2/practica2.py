@@ -24,6 +24,7 @@ def imShowRealScale(img,gray=0,title='img',scale=1):
     fig = plt.figure(figsize=figsize, dpi=dpi)
     fig.subplots_adjust(left=left, bottom=bottom, right=1.-left, top=1.-bottom)
     plt.title(title)
+
     
     if( gray != 0 ):
         plt.imshow(img,cmap='gray')
