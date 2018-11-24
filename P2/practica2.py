@@ -244,20 +244,18 @@ def detectKeyPointsSURF( img, surf ):
     imgkp = img.copy()
     imgkp = cv.drawKeypoints(imgkp,kp_surf,imgkp)
     
-    unpacked_kp_surf = []
-    for i in range(0,len(kp_surf)):
-        unpacked_kp_surf.append(unpackSIFTOctave(kp_surf[i]))
+
     
     ## Num de octavas
-    min_oct = unpacked_kp_surf[0][0]
-    max_oct = unpacked_kp_surf[0][0]
+    min_oct = kp_surf[0].octave
+    max_oct = kp_surf[0].octave
     
  
-    for i in range(len(unpacked_kp_surf)):
-        if( unpacked_kp_surf[i][0] > max_oct ):
-            max_oct = unpacked_kp_surf[i][0]
-        if( unpacked_kp_surf[i][0] < min_oct ):
-            min_oct = unpacked_kp_surf[i][0]
+    for i in range(len(kp_surf)):
+        if( kp_surf[i].octave > max_oct ):
+            max_oct = kp_surf[i].octave
+        if( kp_surf[i].octave < min_oct ):
+            min_oct = kp_surf[0].octave
 
             
             
@@ -272,9 +270,9 @@ def detectKeyPointsSURF( img, surf ):
         lista_octavas.append(temp)
     
     
-    for i in range(len(unpacked_kp_surf)):
-        #print(str(unpacked_kp[i][0]) + " " + str(min_oct) + " " + str(unpacked_kp[i][0]-min_oct))
-        lista_octavas[unpacked_kp_surf[i][0]-min_oct].append(kp_surf[i])
+    for i in range(len(kp_surf)):
+      
+        lista_octavas[kp_surf[i].octave-min_oct].append(kp_surf[i])
         
         
     ## Pintamos keypoints por cada octava 
@@ -352,7 +350,179 @@ lugar del cálculo de SIFT de OpenCV se añaden 0.5 puntos)
 
 
 """
+################      BRUTAL FORCE WITH CROSSCHECK    ##############################   
+####################################################################################  
+def detectMatchesBF( img1, img2, sift1, sift2, num_matches ):
+    
+    kp1, desc1 = sift1.detectAndCompute(img1,None)
+    kp2, desc2 = sift2.detectAndCompute(img2,None)
+    
+    bf = cv.BFMatcher(crossCheck = True)
+    matches = bf.match(desc1,desc2)
+    
+    random_matches = []
+    from random import randint
+    for i in range(num_matches):
+        random_matches.append(matches[randint(0,len(matches)-1)])
+    
+    
+    return (cv.drawMatches(img1,kp1,img2,kp2,random_matches,None), matches)
+####################################################################################
+#################################################################################### 
+    
 
+################         LOWE-AVERAGE-2NN             ##############################   
+####################################################################################  
+def detectMatchesKNN( img1, img2, sift1 = cv.xfeatures2d.SIFT_create(), sift2 = cv.xfeatures2d.SIFT_create(), num_matches = 100, ratio = 0.75, knn = 2 ):
+    
+    kp1, desc1 = sift1.detectAndCompute(img1,None)
+    kp2, desc2 = sift2.detectAndCompute(img2,None)
+    
+    bf = cv.BFMatcher()
+    matches = bf.knnMatch(desc1,desc2, k= knn)
+    
+    
+    good_matches = []
+    for m in matches:
+        if m[0].distance < ratio*m[1].distance:
+            good_matches.append(m)
+    
+    good_matches = np.asarray(good_matches)
+    
+    random_matches = []
+    from random import randint
+    for i in range(num_matches):
+        random_matches.append(good_matches[randint(0,len(good_matches)-1)])
+    
+    
+    return (cv.drawMatchesKnn(img1,kp1,img2,kp2,random_matches,None), good_matches)
+####################################################################################
+#################################################################################### 
+
+
+
+"""
+(a) Mostrar ambas imágenes en un mismo canvas y pintar lı́neas de difer-
+entes colores entre las coordenadas de los puntos en correspondencias.
+Mostrar en cada caso 100 elegidas aleatoriamente.
+"""
+
+img_matches_bf, matches_bf = detectMatchesBF(img1,img2,sift1,sift2,100)
+imShowRealScale(img_matches_bf)
+
+img_matches_knn, matches_knn = detectMatchesKNN(img1,img2,sift1,sift2,100)
+imShowRealScale(img_matches_knn)
+
+
+
+"""
+(b) Valorar la calidad de los resultados obtenidos en términos de las corre-
+spondencias válidas observadas por inspección ocular y las tendencias
+de las lı́neas dibujadas.
+"""
+
+
+
+"""
+(c) Comparar ambas técnicas de correspondencias en términos de la cal-
+idad de sus correspondencias (suponer 100 aleatorias e inspección
+visual).
+"""
+
+
+
+
+
+
+
+"""
+3. (2.5 puntos) Escribir una función que genere un mosaico de calidad a
+partir de N = 3 imágenes relacionadas por homografı́as, sus listas de
+keyPoints calculados de acuerdo al punto anterior y las correspondencias
+encontradas entre dichas listas. Estimar las homografı́as entre ellas usando
+la función cv2.findHomography(p1,p2, CV RANSAC,1). Para el mosaico
+será necesario.
+
+"""
+
+
+
+
+################                 MOSAIC               ##############################   
+####################################################################################  
+
+def mosaic( img1, img2, ratio=0.75, reprojThresh=4.0 ):
+    
+
+    
+    sift = cv.xfeatures2d.SIFT_create()
+
+    kp1, des1 = sift.detectAndCompute(img1,None)
+    kp2, des2 = sift.detectAndCompute(img2,None)
+    
+    bf = cv.BFMatcher()
+    matches = bf.knnMatch(des2,des1, k=2)
+    
+    
+    # Apply ratio test
+    good = []
+    for m in matches:
+        if m[0].distance < 0.5*m[1].distance:
+                good.append(m)
+    matches = np.asarray(good)
+    
+    
+   
+    src = np.float32([ kp2[m.queryIdx].pt for m in matches[:,0] ]).reshape(-1,1,2)
+    dst = np.float32([ kp1[m.trainIdx].pt for m in matches[:,0] ]).reshape(-1,1,2)
+
+    (H, status) = cv.findHomography(src, dst, cv.RANSAC, 1.0)
+    
+    
+    
+    dst = cv.warpPerspective(img2,H,(img1.shape[1] + img2.shape[1], img1.shape[0]))
+    dst[0:img1.shape[0], 0:img1.shape[1]] = img1
+    
+
+
+
+    return dst
+
+
+    
+    
+    
+def mosaic3Img( img1, img2, img3, ratio=0.75, reprojThresh=4.0 ):
+    temp = mosaic(img2,img3)
+    
+    imShowRealScale(temp)
+    res = mosaic(img1,temp)
+    return res
+
+
+
+
+
+def mosaicNImg( img, ratio=0.75, reprojThresh=4.0 ):
+    temp = img[len(img)-1]
+    for i in range(len(img)-1,0,-1): 
+        print(i)
+        temp = mosaic(img[i-1],temp)
+        imShowRealScale(temp)
+
+    return temp
+
+
+img1 = cv.imread('imagenes/mosaico002.jpg')
+img2 = cv.imread('imagenes/mosaico003.jpg')
+img3 = cv.imread('imagenes/mosaico004.jpg')
+img4 = cv.imread('imagenes/mosaico005.jpg')
+img5 = cv.imread('imagenes/mosaico006.jpg')
+
+
+res = mosaicNImg((img1,img2,img3,img4,img5))
+
+imShowRealScale(res)
 
 
 
