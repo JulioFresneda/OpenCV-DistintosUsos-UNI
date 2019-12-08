@@ -1,5 +1,6 @@
 # Visión por Computador
-## Prácticas de cuarto curso de la asignatura de Visión por Computador | 2018-2019 
+## Prácticas de cuarto curso de la asignatura de Visión por Computador
+## 2018-2019 
 
 
 La visión por computador es el conjunto de herramientas y métodos que permiten obtener, procesar y analizar imágenes del mundo real con la finalidad de que puedan ser tratadas por un ordenador. Esto permite automatizar una amplia gama de tareas al aportar a las máquinas la información que necesitan para la toma de decisiones correctas en cada una de las tareas en las que han sido asignadas.
