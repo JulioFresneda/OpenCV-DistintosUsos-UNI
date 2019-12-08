@@ -32,5 +32,5 @@ imágenes de la base de datos.
   -Elegir palabras visuales de un diccionario, es decir, centroides de un clúster, y a partir de ahí obtener los x parches cuyos descriptores de una lista de descriptores sean los más cercanos a ese clúster.
   
 Ejemplo: Emparejamiento de descriptores de una región de una imagen con descriptores de otra imagen
-[!Descriptores Friends](https://github.com/juliofgx17/VisionPorComputador/blob/master/descriptores_friends.png)
+![Descriptores Friends](https://github.com/juliofgx17/VisionPorComputador/blob/master/descriptores_friends.png)
 
